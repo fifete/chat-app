@@ -24,13 +24,21 @@ app.use(bodyParser.json());
 
 client.connect();
 
+function getUsers() {
+  return client
+    .query('SELECT * FROM users')
+    .then((response) => {
+      return response.rows;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
 app.get('/users', (req, res) => {
-  client.query(`Select * from users`, (err, result) => {
-    if (!err) {
-      res.send(result.rows);
-    }
+  getUsers().then((response) => {
+    res.send(response);
   });
-  client.end();
 });
 
 function addUser(nameUser, email, password, status) {
@@ -50,8 +58,8 @@ function addUser(nameUser, email, password, status) {
 }
 
 /* addUser('Daniela', 'dan@kity.com', '123456', true);
-addUser('Gaby', 'gaby@kity.com', '123456', true);
-addUser('Pao', 'pao@kity.com', '123456', false); */
+addUser('Gaby', 'gaby@kity.com', '123456', true); */
+/* addUser('Pao', 'pao@kity.com', '123456', false); */
 
 function getUserState(status) {
   client
@@ -94,4 +102,4 @@ function deleteUser(id) {
       client.end();
     });
 }
-deleteUser(3);
+/* deleteUser(3); */
