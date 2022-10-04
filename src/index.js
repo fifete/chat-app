@@ -105,32 +105,32 @@
 // }
 // /* deleteUser(3); */
 
-const app = require('express')();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-// import path from 'path';
-const path = require('path');
+// const app = require('express')();
+// const http = require('http').Server(app);
+// const io = require('socket.io')(http);
+// // import path from 'path';
+// const path = require('path');
 
-const port = process.env.PORT || 3000;
-// const express = require('express');
-// const app = express();
+// const port = process.env.PORT || 3000;
+// // const express = require('express');
+// // const app = express();
 
-// app.listen(port, () => {
-//   console.log(`Example app listening on port ${port}`);
+// // app.listen(port, () => {
+// //   console.log(`Example app listening on port ${port}`);
+// // });
+// app.get('/', (req, res) => {
+//   // res.sendFile(__dirname + '/index.html');
+//   // send the index.html file to the client using path.join
+//   res.sendFile(path.join(__dirname, 'index.html'));
+
 // });
-app.get('/', (req, res) => {
-  // res.sendFile(__dirname + '/index.html');
-  // send the index.html file to the client using path.join
-  res.sendFile(path.join(__dirname, 'index.html'));
 
-});
+// io.on('connection', (socket) => {
+//   socket.on('chat message', msg => {
+//     io.emit('chat message', msg);
+//   });
+// });
 
-io.on('connection', (socket) => {
-  socket.on('chat message', msg => {
-    io.emit('chat message', msg);
-  });
-});
-
-http.listen(port, () => {
-  console.log(`Socket.IO server running at http://localhost:${port}/`);
-});
+// http.listen(port, () => {
+//   console.log(`Socket.IO server running at http://localhost:${port}/`);
+// });
