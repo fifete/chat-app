@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "db-up": "docker-compose up -d",
     "db-status": "docker-compose ps",
-    "db-down": "docker-compose down"
+    "db-down": "docker-compose down",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "body-parser": "^1.20.0",
@@ -23,6 +24,7 @@
     "eslint-plugin-html": "^6.1.2",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-prettier": "^4.0.0",
+    "gh-pages": "^4.0.0",
     "prettier": "^2.3.2"
   },
   "engines": {
