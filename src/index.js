@@ -22,9 +22,9 @@ io.on('connection', (socket) => {
     io.emit('chat message', msg);
   });
 });
-http.listen(port, () => {
+/* http.listen(port, () => {
   console.log(`Socket.IO server running at http://localhost:${port}/`);
-});
+}); */
 
 // base de datos
 
@@ -32,9 +32,9 @@ http.listen(port, () => {
   res.send('Hello World!');
 }); */
 
-/* app.listen(port, () => {
+app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
-}); */
+});
 
 app.use(bodyParser.json());
 
