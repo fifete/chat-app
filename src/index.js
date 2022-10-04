@@ -1,46 +1,22 @@
-/* const express = require('express'); */
+const express = require('express');
 
 const bodyParser = require('body-parser');
 
-/* const app = express(); */
+const app = express();
 // eslint-disable-next-line import/extensions
 const client = require('./connection.js');
 
-/* const port = process.env.PORT || 3300; */
-
-const app = require('express')();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-const path = require('path');
-
 const port = process.env.PORT || 3000;
+
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-io.on('connection', (socket) => {
-  socket.on('chat message', msg => {
-    io.emit('chat message', msg);
-  });
-});
-http.listen(port, () => {
-  console.log(`Socket.IO server running at http://localhost:${port}/`);
-});
-
-// base de datos
-
-/* app.get('/', (req, res) => {
   res.send('Hello World!');
-}); */
+});
 
-/* app.listen(port, () => {
+app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
-}); */
+});
 
 app.use(bodyParser.json());
-
-/* app.listen(3300, () => {
-  console.log('Sever is now listening at port 3000');
-}); */
 
 client.connect();
 
