@@ -33,11 +33,7 @@ app.use(
 client.connect();
 
 app.get('/users', db.getUsers);                                                                   
-app.post('/addUser', (req, res) => {
-  const { nameUser, email, status } = req.body;
-  db.addUser(nameUser, email, status);
-  res.send('User added');
-  });
+app.post('/addUser', db.addUser);
 
 /* function getUsers() {                                
   return client

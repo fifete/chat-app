@@ -20,19 +20,19 @@ const getUsers = (request, response) => {
           });
     };
   
-  function addUser(nameUser, email, status) {
+  function addUser(req, res) {
+    const { nameUser, email, status } = req.body;
     client
       .query(
         `INSERT INTO public.users(username, state, email)
-        VALUES ($1, $2, $3);`, [nameUser, status, email]
+        VALUES ($1, $2, $3);`, [nameUser, status, email],
+        (error, results) => {
+          if (error) {
+            throw error;
+          }
+          res.status(201).send(`User added with ID: ${results.rows}`);
+        }
       )
-      .then((response) => {
-        console.log(response.rows);
-        response.send('User added');
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   }
 
 module.exports = {
