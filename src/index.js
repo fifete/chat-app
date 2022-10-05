@@ -29,3 +29,7 @@ app.get('/users', (req, res) => {
     res.send(response);
   });
 });
+
+app.post('/addUser', (req, res) => {
+  bd.addUser('Pamela', 'pam@kity.com', '123456', true)
+});

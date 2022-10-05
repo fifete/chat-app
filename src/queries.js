@@ -19,11 +19,12 @@ function addUser(nameUser, email, password, status) {
     )
     .then((response) => {
       console.log(response.rows);
-      client.end();
+      return 'agregado';
+/*       client.end(); */
     })
     .catch((err) => {
       console.log(err);
-      client.end();
+/*       client.end(); */
     });
 }
 
