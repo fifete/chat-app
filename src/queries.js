@@ -37,11 +37,9 @@ function getUserState(status) {
     .query(`SELECT * FROM users WHERE status=${status}`)
     .then((response) => {
       console.log(response.rows);
-      client.end();
     })
     .catch((err) => {
       console.log(err);
-      client.end();
     });
 }
 /* getUserState(true); */
