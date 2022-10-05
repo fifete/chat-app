@@ -31,20 +31,23 @@ app.get('/users', (req, res) => {
 });
 
 app.get('/userState', (req, res) => {
-  bd.getUserState().then((response) => {
+  bd.getUserState(false).then((response) => {
     res.send(response);
   });
 });
 
 app.post('/addUser', (req, res) => {
-  bd.addUser('Pamela', 'pam@kity.com', '123456', true)
+  console.log('asks');
+  bd.addUser('kitty', 'pam@kity.com', '123456', true)
+  res.send('adding kitty');
+
 });
 
-app.put('/updateState', (req, res) => {
-  bd.updateUserState('123456', false)
+/* app.put('/updateState', (req, res) => {
+  bd.updateUserState(2, false)
 });
 
 app.delete('/deleteUser', (req, res) => {
-  bd.deleteUser('4')
-});
+  bd.deleteUser(4)
+}); */
 

@@ -49,11 +49,9 @@ function updateUserState(id, status) {
     .query(`UPDATE public.users SET status=${status} where id_user=${id}`)
     .then((response) => {
       console.log(response.rows);
-      client.end();
     })
     .catch((err) => {
       console.log(err);
-      client.end();
     });
 }
 
@@ -64,16 +62,17 @@ function deleteUser(id) {
     .query(`DELETE FROM users WHERE id_user= ${id};`)
     .then((response) => {
       console.log(response.rows);
-      client.end();
     })
     .catch((err) => {
       console.log(err);
-      client.end();
     });
 }
 /* deleteUser(3); */
 
 module.exports = {
   getUsers: getUsers,
-  addUser: addUser
+  addUser: addUser,
+  getUserState: getUserState,
+  updateUserState: updateUserState,
+  deleteUser: deleteUser
 };
