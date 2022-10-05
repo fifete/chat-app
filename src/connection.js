@@ -1,26 +1,28 @@
+const { Pool } = require('pg');
+
 // /* eslint-disable prettier/prettier */
-// const { Client } = require('pg');
+// const { Client } = require('pg').Pool;
 
-// const client = new Client({
-//   host: 'ec2-35-173-91-114.compute-1.amazonaws.com',
-//   user: 'nachddmbxrqyiw',
-//   port: 5432,
-//   password: '4c8c96c1e50ed4f0339ffe57fcefd6413ba4468bdc89661d6cffa39b17e7e81a',
-//   database: 'ddkpnvu22amiqf',
-//   connectionString: process.env.DATABASE_URL,
-//   ssl: {
-//     rejectUnauthorized: false
-//   }
-// });
+const client = new Pool({
+  host: 'ec2-34-227-120-79.compute-1.amazonaws.com',
+  user: 'xlmawradjiyvek',
+  port: 5432,
+  password: 'a90c1d045191b430580336853d481d607fb39243f62948f4c56e9eb7f5f256d3',
+  database: 'df01fd8sptukh3',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
-// /* 
-// const client = new Client({
-//   host: 'localhost',
-//   user: 'postgres',
-//   port: 5432,
-//   password: 'postgres',
-//   database: 'postgres',
-// }); 
-// */
+/* 
+const client = new Client({
+  host: 'localhost',
+  user: 'postgres',
+  port: 5432,
+  password: 'postgres',
+  database: 'postgres',
+}); 
+*/
 
-// module.exports = client;
+module.exports = client;

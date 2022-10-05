@@ -1,109 +1,109 @@
 /* eslint-disable prettier/prettier */
-// const express = require('express');
+const express = require('express');
 
-// const bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 
-// const app = express();
-// // eslint-disable-next-line import/extensions
-// const client = require('./connection.js');
+const app = express();
+// eslint-disable-next-line import/extensions
+const client = require('./connection.js');
 
-// const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
-// app.get('/', (req, res) => {
-//   res.json({ info: 'Node.js, Express, and Postgres API' });
-// });
+//import queries
+const db = require('./queries');
 
-// app.listen(port, () => {
-//   console.log(`Example app listening on port ${port}`);
-// });
+app.get('/', (req, res) => {
+  res.json({ info: 'Node.js, Express, and Postgres API' });
+});
 
-// app.use(bodyParser.json());
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
 
-// /* app.listen(3300, () => {
-//   console.log('Sever is now listening at port 3000');
-// }); */
+app.use(bodyParser.json());
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+/* app.listen(3300, () => {
+  console.log('Sever is now listening at port 3000');
+}); */
 
-// client.connect();
+client.connect();
 
-// function getUsers() {
-//   return client
-//     .query('SELECT * FROM users')
-//     .then((response) => {
-//       return response.rows;
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// }
+app.get('/users', db.getUsers);                                                                   
+app.post('/addUser', (req, res) => {
+  const { nameUser, email, status } = req.body;
+  db.addUser(nameUser, email, status);
+  res.send('User added');
+  });
 
-// app.get('/users', (req, res) => {
-//   getUsers().then((response) => {
-//     res.send(response);
-//   });
-// });
+/* function getUsers() {                                
+  return client
+    .query('SELECT * FROM users')
+    .then((response) => {
+      return response.rows;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
 
-// function addUser(nameUser, email, password, status) {
-//   client
-//     .query(
-//       `INSERT INTO public.users(name_user, email, password, status)
-//     	VALUES ( '${nameUser}', '${email}', '${password}', ${status})`
-//     )
-//     .then((response) => {
-//       console.log(response.rows);
-//       client.end();
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       client.end();
-//     });
-// }
+app.get('/users', (req, res) => {
+  getUsers().then((response) => {
+    res.send(response);
+  });
+}); */
 
-// /* addUser('Daniela', 'dan@kity.com', '123456', true);
-// addUser('Gaby', 'gaby@kity.com', '123456', true); */
-// /* addUser('Pao', 'pao@kity.com', '123456', false); */
 
-// function getUserState(status) {
-//   client
-//     .query(`SELECT * FROM users WHERE status=${status}`)
-//     .then((response) => {
-//       console.log(response.rows);
-//       client.end();
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       client.end();
-//     });
-// }
-// /* getUserState(true); */
 
-// function updateUserState(id, status) {
-//   client
-//     .query(`UPDATE public.users SET status=${status} where id_user=${id}`)
-//     .then((response) => {
-//       console.log(response.rows);
-//       client.end();
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       client.end();
-//     });
-// }
+/* addUser('Daniela', 'dan@kity.com', '123456', true);
+addUser('Gaby', 'gaby@kity.com', '123456', true); */
+/* addUser('Pao', 'pao@kity.com', '123456', false); */
 
-// /* updateUserState(3, true); */
+function getUserState(status) {
+  client
+    .query(`SELECT * FROM users WHERE status=${status}`)
+    .then((response) => {
+      console.log(response.rows);
+      client.end();
+    })
+    .catch((err) => {
+      console.log(err);
+      client.end();
+    });
+}
+/* getUserState(true); */
 
-// function deleteUser(id) {
-//   client
-//     .query(`DELETE FROM users WHERE id_user= ${id};`)
-//     .then((response) => {
-//       console.log(response.rows);
-//       client.end();
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       client.end();
-//     });
-// }
-// /* deleteUser(3); */
+function updateUserState(id, status) {
+  client
+    .query(`UPDATE public.users SET status=${status} where id_user=${id}`)
+    .then((response) => {
+      console.log(response.rows);
+      client.end();
+    })
+    .catch((err) => {
+      console.log(err);
+      client.end();
+    });
+}
+
+/* updateUserState(3, true); */
+
+function deleteUser(id) {
+  client
+    .query(`DELETE FROM users WHERE id_user= ${id};`)
+    .then((response) => {
+      console.log(response.rows);
+      client.end();
+    })
+    .catch((err) => {
+      console.log(err);
+      client.end();
+    });
+}
+/* deleteUser(3); */
 
 // const app = require('express')();
 // const http = require('http').Server(app);
