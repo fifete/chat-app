@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/extensions
 const client = require('./connection.js');
 
 function getUsers() {
@@ -16,7 +15,7 @@ function addUser(nameUser, email, password, status) {
   client
     .query(
       `INSERT INTO public.users(name_user, email, password, status)
-          VALUES ( '${nameUser}', '${email}', '${password}', ${status})`
+            VALUES ( '${nameUser}', '${email}', '${password}', ${status})`
     )
     .then((response) => {
       console.log(response.rows);
@@ -29,7 +28,7 @@ function addUser(nameUser, email, password, status) {
 }
 
 /* addUser('Daniela', 'dan@kity.com', '123456', true);
-  addUser('Gaby', 'gaby@kity.com', '123456', true); */
+    addUser('Gaby', 'gaby@kity.com', '123456', true); */
 /* addUser('Pao', 'pao@kity.com', '123456', false); */
 
 function getUserState(status) {
@@ -76,9 +75,6 @@ function deleteUser(id) {
 /* deleteUser(3); */
 
 module.exports = {
-  getUsers,
-  getUserState,
-  addUser,
-  updateUserState,
-  deleteUser,
+  getUsers: getUsers,
+  addUser: addUser
 };

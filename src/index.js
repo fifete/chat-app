@@ -6,7 +6,11 @@ const app = express();
 
 const port = process.env.PORT || 3000;
 
-const db = require('./queries');
+// eslint-disable-next-line import/extensions
+const client = require('./connection.js');
+
+// eslint-disable-next-line import/extensions
+const bd = require('./queries.js');
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -18,10 +22,10 @@ app.listen(port, () => {
 
 app.use(bodyParser.json());
 
+client.connect();
+
 app.get('/users', (req, res) => {
-  const getU = Promise.all(db.getUsers());
-  console.log(getU);
-  db.getUsers().then((response) => {
+  bd.getUsers().then((response) => {
     res.send(response);
   });
 });
