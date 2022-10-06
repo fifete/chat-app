@@ -1,31 +1,27 @@
 const client = require('./connection.js');
 
-function getUsers() {
-  return client
-    .query('SELECT * FROM users')
-    .then((response) => {
-      return response.rows;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-}
+const getUsers = (request, response) => {
+  client.query('SELECT * FROM users', (error, results) => {
+    if (error) {
+      throw error;
+    }
+    response.status(200).json(results.rows);
+  });
+};
 
-function addUser(nameUser, email, password, status) {
-  client
-    .query(
-      `INSERT INTO public.users(name_user, email, password, status)
-            VALUES ( '${nameUser}', '${email}', '${password}', ${status})`
-    )
-    .then((response) => {
-      console.log(response.rows);
-      return 'agregado';
-/*       client.end(); */
-    })
-    .catch((err) => {
-      console.log(err);
-/*       client.end(); */
-    });
+function addUser(req, res) {
+  const { nameUser, email, password, status } = req.body;
+  client.query(
+    `INSERT INTO public.users(username, state, email)
+      VALUES ($1, $2, $3, $4);`,
+    [nameUser, email, password, status],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      res.status(201).send(`User added with ID: ${results.rows}`);
+    }
+  );
 }
 
 /* addUser('Daniela', 'dan@kity.com', '123456', true);
@@ -42,6 +38,15 @@ function getUserState(status) {
       console.log(err);
     });
 }
+
+/* const getUserState = (request, response) => {
+  client.query('SELECT * FROM users ORDER BY id ASC', (error, results) => {
+    if (error) {
+      throw error;
+    }
+    response.status(200).json(results.rows);
+  });
+}; */
 /* getUserState(true); */
 
 function updateUserState(id, status) {
@@ -74,5 +79,5 @@ module.exports = {
   addUser: addUser,
   getUserState: getUserState,
   updateUserState: updateUserState,
-  deleteUser: deleteUser
+  deleteUser: deleteUser,
 };
