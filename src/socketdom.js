@@ -13,21 +13,14 @@ function appendMessage(message) {
 }
 
 appendMessage('You joined');
-socket.emit('new-user', name);
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const message = input.value;
   appendMessage(`You: ${message}`);
-  socket.emit('send-chat-message', message);
+  socket.emit('chat message', message);
   input.value = '';
 });
-socket.on('chat-message', (data) => {
-  appendMessage(`${data.name}: ${data.message}`);
-});
-socket.on('user-connected', (name) => {
-  appendMessage(`${name} connected`);
-});
-socket.on('user-disconnected', (name) => {
-  appendMessage(`${name} disconnected`);
+socket.on('chat message', (data) => {
+  appendMessage(`${data}`);
 });
 
