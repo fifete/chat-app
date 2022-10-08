@@ -1,8 +1,13 @@
+/* eslint-disable import/newline-after-import */
+/* eslint-disable prettier/prettier */
 const express = require('express');
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const http = require('http').Server(app);
+
+const jwt = require('jsonwebtoken');
+
 const port = process.env.PORT || 3100;
 const port2 = process.env.PORT || 3300;
 const io = require('socket.io')(http, {
@@ -11,26 +16,11 @@ const io = require('socket.io')(http, {
   },
 });
 
+const client = require('./connection.js');
+const db = require('./queries');
 app.use(cors());
 
 // eslint-disable-next-line import/extensions
-const client = require('./connection.js');
-const db = require('./queries');
-
-
-// const express = require('express');
-
-// const app = express();
-
-// const port = process.env.PORT || 3300;
-// const path = require('path');
-
-// import queries
-
-/* app.get('/', (req, res) => {
-  res.json({ info: 'Node.js, Express, and Postgres API' });
-});
- */
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
@@ -52,9 +42,9 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  socket.on('chat message', (msg) => {
-    console.log(msg);
-    io.emit('chat message', msg.text);
+  socket.on('chat message', (msgInfo) => {
+    console.log(msgInfo);
+    io.emit('chat message', msgInfo);
   });
 });
 
@@ -62,25 +52,39 @@ http.listen(port2, () => {
   console.log(`listening on: ${port2}`);
 });
 
+app.post("/login", (req , res) => {
+  const infoUserLogin = req.body;
+  jwt.sign({infoUserLogin}, 'secretkey', {expiresIn: '24h'}, (err, token) => {
+      res.send({
+          token
+      });
+  });
 
-/* app.get('/userState', (req, res) => {
-  bd.getUserState(false).then((response) => {
-    res.send(response);
+});
+
+// Authorization: Bearer <token>
+function verifyToken(req, res, next){
+  const bearerHeader =  req.headers.authorization;
+
+  if(typeof bearerHeader !== 'undefined'){
+       const bearerToken = bearerHeader.split(" ")[1];
+       req.token  = bearerToken;
+       next();
+  }else{
+      res.sendStatus(403);
+  }
+}
+
+app.post("/createCanal", verifyToken, (req , res) => {
+
+  jwt.verify(req.token, 'secretkey', (error, authData) => {
+      if(error){
+          res.sendStatus(403);
+      }else{
+          res.json({
+                  mensaje: "Canal fue creado",
+                  authData
+              });
+      }
   });
 });
-
-app.post('/addUser', (req, res) => {
-  console.log('asks');
-  bd.addUser('kitty', 'pam@kity.com', '123456', true)
-  res.send('adding kitty');
-
-}); */
-
-/* app.put('/updateState', (req, res) => {
-  bd.updateUserState(2, false)
-});
-
-app.delete('/deleteUser', (req, res) => {
-  bd.deleteUser(4)
-}); */
-
