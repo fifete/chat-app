@@ -5,6 +5,7 @@ const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const http = require('http').Server(app);
+const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 3100;
 const port2 = process.env.PORT || 3300;
 const io = require('socket.io')(http, {
@@ -47,4 +48,41 @@ io.on('connection', (socket) => {
 
 http.listen(port2, () => {
   console.log(`listening on: ${port2}`);
+});
+
+app.post("/login", (req , res) => {
+  const infoUserLogin = req.body;
+  jwt.sign({infoUserLogin}, 'secretkey', {expiresIn: '24h'}, (err, token) => {
+      res.send({
+          token
+      });
+  });
+
+});
+
+// Authorization: Bearer <token>
+function verifyToken(req, res, next){
+  const bearerHeader =  req.headers.authorization;
+
+  if(typeof bearerHeader !== 'undefined'){
+       const bearerToken = bearerHeader.split(" ")[1];
+       req.token  = bearerToken;
+       next();
+  }else{
+      res.sendStatus(403);
+  }
+}
+
+app.post("/createCanal", verifyToken, (req , res) => {
+
+  jwt.verify(req.token, 'secretkey', (error, authData) => {
+      if(error){
+          res.sendStatus(403);
+      }else{
+          res.json({
+                  mensaje: "Canal fue creado",
+                  authData
+              });
+      }
+  });
 });
