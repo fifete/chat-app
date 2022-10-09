@@ -11,18 +11,19 @@ const getUsers = (request, response) => {
 };
   
 function addUser(req, res) {
-  const { nameUser, email, status } = req.body;
-  client
-    .query(
-      `INSERT INTO public.users(username, state, email)
-      VALUES ($1, $2, $3);`, [nameUser, status, email],
-      (error, results) => {
-        if (error) {
-          throw error;
-        }
-        res.status(201).send(`User added with ID: ${results.rows}`);
+  const { nameUser, email, password } = req.body;
+  client.query(
+    `INSERT INTO public.users(user_name, email, password)
+      VALUES ($1, $2, $3);`,
+    [nameUser, email, password],
+    (error, results) => {
+      if (error) {
+        res.status(400).send({error: error.detail});
+        throw error;
       }
-    )
+      res.status(200).send(`User added with ID: ${results.rows}`);
+    }
+  );
 }
 
 module.exports = {
