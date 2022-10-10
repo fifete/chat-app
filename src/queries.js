@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 const client = require('./connection');
+const jwt = require('jsonwebtoken');
 
 const getUsers = (request, response) => {
   client.query('SELECT * FROM users', (error, results) => {
@@ -18,15 +19,40 @@ function addUser(req, res) {
     [nameUser, email, password],
     (error, results) => {
       if (error) {
-        res.status(400).send({error: error.detail});
-        throw error;
+        // send error.detail and status 400 to client
+        return res.status(400).send({ message: error.detail });
       }
-      res.status(200).send(`User added with ID: ${results.rows}`);
+      return res.status(200).send({
+        message: `User added with ID: ${results}`
+      });
     }
+  );
+}
+
+function verifyUserLogged(userData, res) {
+  const {email, password} = userData
+  client.query(
+    `SELECT * FROM users WHERE email = $1 AND password = $2`,
+    [email, password],
+    (error, results) => {
+      if (error) {
+        // send error.detail and status 400 to client
+        console.log(error);
+        return res.status(400).send({ message: error.detail });
+      }
+      console.log(results);
+      return jwt.sign({ userData }, 'secretkey', { expiresIn: '24h' },
+        (err, token) => {
+          res.status(200).send({
+            token,
+          });
+        }
+      );}
   );
 }
 
 module.exports = {
     getUsers: getUsers,
-    addUser: addUser
+    addUser: addUser,
+    verifyUserLogged: verifyUserLogged
 };
