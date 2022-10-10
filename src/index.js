@@ -54,12 +54,7 @@ http.listen(port2, () => {
 
 app.post("/login", (req , res) => {
   const infoUserLogin = req.body;
-  jwt.sign({infoUserLogin}, 'secretkey', {expiresIn: '24h'}, (err, token) => {
-      res.send({
-          token
-      });
-  });
-
+  db.verifyUserLogged(infoUserLogin, res)
 });
 
 // Authorization: Bearer <token>

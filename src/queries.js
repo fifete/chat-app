@@ -1,4 +1,5 @@
 const client = require('./connection.js');
+const jwt = require('jsonwebtoken');
 
 const getUsers = (request, response) => {
   client.query('SELECT * FROM users', (error, results) => {
@@ -17,10 +18,10 @@ function addUser(req, res) {
     [nameUser, email, password],
     (error, results) => {
       if (error) {
-        res.status(400).send({error: error.detail});
+        res.status(400).send({message: error.detail});
         throw error;
       }
-      res.status(201).send(`User added with ID: ${results.rows}`);
+      res.status(201).send({message:`User added with ID: ${results}`});
     }
   );
 }
@@ -85,6 +86,49 @@ function deleteUser(id) {
     });
 }
 /* deleteUser(3); */
+/* function verifyUserLogged(userData, res) {
+  const {email, password} = userData
+  client.query(
+    `SELECT * FROM users WHERE email=$1 AND password=$2`,
+    [email, password],
+    (error, results) => {
+      if (error) {
+        // send error.detail and status 400 to client
+        console.log(error);
+        return res.status(400).send({ message: error.detail });
+      }
+      console.log(results);
+      return jwt.sign({ userData }, 'secretkey', { expiresIn: '24h' },
+        (err, token) => {
+          res.status(200).send({
+            token,
+          });
+        }
+      );}
+  );
+} */
+
+const verifyUserLogged = async (userData, res) => {
+  try {
+    const { email, password } = userData;
+    const result = await client.query(
+      `SELECT * FROM users WHERE email=$1 AND password=$2`,
+      [email, password]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Email or Password invalid' });
+    }
+
+    return jwt.sign({ userData }, 'secretkey', { expiresIn: '24h' },
+    (err, token) => {
+      res.status(200).send({
+        token,
+      });
+    });
+  } catch (error) {
+    console.log(error.stack);
+  }
+};
 
 module.exports = {
   getUsers: getUsers,
@@ -92,4 +136,5 @@ module.exports = {
   getUserState: getUserState,
   updateUserState: updateUserState,
   deleteUser: deleteUser,
+  verifyUserLogged: verifyUserLogged
 };
