@@ -34,6 +34,7 @@ app.use(express.static(__dirname));
 client.connect();
 
 app.get('/users', db.getUsers);
+app.post('/userName', db.getUserName);
 app.post('/addUser', db.addUser);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');

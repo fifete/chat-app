@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-const client = require('./connection');
 const jwt = require('jsonwebtoken');
+const client = require('./connection');
 
 const getUsers = (request, response) => {
   client.query('SELECT * FROM users', (error, results) => {
@@ -29,30 +29,43 @@ function addUser(req, res) {
   );
 }
 
-function verifyUserLogged(userData, res) {
-  const {email, password} = userData
-  client.query(
-    `SELECT * FROM users WHERE email = $1 AND password = $2`,
-    [email, password],
-    (error, results) => {
+function getUserName(req, res) {
+  const { email } = req.body;
+  client.query(`SELECT * FROM users WHERE email=$1`,
+  [email],(error, results) => {
       if (error) {
-        // send error.detail and status 400 to client
-        console.log(error);
         return res.status(400).send({ message: error.detail });
       }
       console.log(results);
-      return jwt.sign({ userData }, 'secretkey', { expiresIn: '24h' },
-        (err, token) => {
-          res.status(200).send({
-            token,
-          });
-        }
-      );}
-  );
+      return res.status(200).send({ message: results.rows[0].user_name })
+    })
 }
+
+const verifyUserLogged = async (userData, res) => {
+  try {
+    const { email, password } = userData;
+    const result = await client.query(
+      `SELECT * FROM users WHERE email=$1 AND password=$2`,
+      [email, password]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).send({ message: 'Email or Password invalid' });
+    }
+
+    return jwt.sign({ userData }, 'secretkey', { expiresIn: '24h' },
+    (err, token) => {
+      res.status(200).send({
+        message: token,
+      });
+    });
+  } catch (error) {
+    console.log(error.stack);
+  }
+};
 
 module.exports = {
     getUsers: getUsers,
     addUser: addUser,
-    verifyUserLogged: verifyUserLogged
+    verifyUserLogged: verifyUserLogged,
+    getUserName: getUserName
 };
