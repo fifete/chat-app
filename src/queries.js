@@ -108,6 +108,18 @@ function deleteUser(id) {
   );
 } */
 
+function getUserName(req, res) {
+  const { email } = req.body;
+  client.query(`SELECT * FROM users WHERE email=$1`,
+  [email],(error, results) => {
+      if (error) {
+        return res.status(400).send({ message: error.detail });
+      }
+      console.log(results);
+      return res.status(200).send({ message: results.rows[0].user_name })
+    })
+}
+
 const verifyUserLogged = async (userData, res) => {
   try {
     const { email, password } = userData;
@@ -116,13 +128,13 @@ const verifyUserLogged = async (userData, res) => {
       [email, password]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Email or Password invalid' });
+      return res.status(404).send({ message: 'Email or Password invalid' });
     }
 
     return jwt.sign({ userData }, 'secretkey', { expiresIn: '24h' },
     (err, token) => {
       res.status(200).send({
-        token,
+        message: token,
       });
     });
   } catch (error) {
@@ -136,5 +148,6 @@ module.exports = {
   getUserState: getUserState,
   updateUserState: updateUserState,
   deleteUser: deleteUser,
-  verifyUserLogged: verifyUserLogged
+  verifyUserLogged: verifyUserLogged,
+  getUserName: getUserName
 };

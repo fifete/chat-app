@@ -36,10 +36,13 @@ app.use(express.static(__dirname));
 client.connect();
 
 app.get('/users', db.getUsers);
+app.post('/userName', db.getUserName);
 app.post('/addUser', db.addUser);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
+
+const users = []
 
 io.on('connection', (socket) => {
   socket.on('chat message', (msgInfo) => {
@@ -47,6 +50,11 @@ io.on('connection', (socket) => {
     io.emit('chat message', msgInfo);
   });
 });
+
+io.on("newUser", data => {
+  users.push(data)
+  io.emit("newUserResponse", users)
+})
 
 http.listen(port2, () => {
   console.log(`listening on: ${port2}`);
