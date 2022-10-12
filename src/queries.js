@@ -115,7 +115,7 @@ function getUserName(req, res) {
       if (error) {
         return res.status(400).send({ message: error.detail });
       }
-      console.log(results);
+/*       console.log(results); */
       return res.status(200).send({ message: results.rows[0].user_name })
     })
 }
