@@ -38,10 +38,12 @@ client.connect();
 
 app.get('/users', db.getUsers);
 app.post('/userName', db.getUserName);
-app.post('/addUser', db.addUser);
+app.post('/addChannel', db.addChannel);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
+
+app.post('/addUser', db.addUser);
 
 let users = [];
 
@@ -55,15 +57,18 @@ io.on('connection', (socket) => {
     console.log('dataserver55', data);
     console.log('🔥: A user Online');
     users.push(data);
-    db.test(data, 'true') 
+    db.test(data, 'true'); 
       // userRow.status = 'Online'
     io.emit("newUserResponse", users);
   })
   socket.on('disconnect', () => {
     console.log('🔥: A user disconnected');
-    //  users = users.filter(user =>user.socketID !== socket.id);
-    const userIndex = users.indexOf(socket)
-    console.log(userIndex);    
+    const presentUser = users.find(user => user.socketID === socket.id);
+    db.test(presentUser, 'false');
+    console.log('usuario que se va', presentUser);
+    users = users.filter(user =>user.socketID !== socket.id);
+/*     const userIndex = users.indexOf(socket)
+    console.log(userIndex);  */   
     io.emit("newUserResponse", users)
     socket.disconnect()
   });
