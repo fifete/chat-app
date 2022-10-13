@@ -18,6 +18,7 @@ const io = require('socket.io')(http, {
 
 const client = require('./connection.js');
 const db = require('./queries');
+const { log } = require('console');
 app.use(cors());
 
 // eslint-disable-next-line import/extensions
@@ -45,18 +46,24 @@ app.get('/', (req, res) => {
 let users = [];
 
 io.on('connection', (socket) => {
+  // const statusBoolean = true
   socket.on('chat message', (msgInfo) => {
     console.log(msgInfo);
     io.emit('chat message', msgInfo);
   });
   socket.on("newUser", data => {
     console.log('dataserver55', data);
+    console.log('🔥: A user Online');
     users.push(data);
+    db.test(data, 'true') 
+      // userRow.status = 'Online'
     io.emit("newUserResponse", users);
   })
   socket.on('disconnect', () => {
     console.log('🔥: A user disconnected');
-    users = users.filter(user => user.socketID !== socket.id)
+    //  users = users.filter(user =>user.socketID !== socket.id);
+    const userIndex = users.indexOf(socket)
+    console.log(userIndex);    
     io.emit("newUserResponse", users)
     socket.disconnect()
   });

@@ -120,6 +120,23 @@ function getUserName(req, res) {
     })
 }
 
+const test = async (userOnlineData, status) => {
+  console.log('test', userOnlineData);
+  console.log(status, typeof status);
+  try {
+    const { email, password } = userOnlineData;
+    const result = await client.query(
+      'UPDATE users SET status=$2 WHERE email=$1',
+      [email, status]
+    );
+    if (result.rows.length === 0) {
+      return 'user not found'
+    }
+  } catch (error) {
+    console.log(error.stack);
+  }
+};
+
 const verifyUserLogged = async (userData, res) => {
   try {
     const { email, password } = userData;
@@ -130,7 +147,6 @@ const verifyUserLogged = async (userData, res) => {
     if (result.rows.length === 0) {
       return res.status(404).send({ message: 'Email or Password invalid' });
     }
-
     return jwt.sign({ userData }, 'secretkey', { expiresIn: '24h' },
     (err, token) => {
       res.status(200).send({
@@ -149,5 +165,6 @@ module.exports = {
   updateUserState: updateUserState,
   deleteUser: deleteUser,
   verifyUserLogged: verifyUserLogged,
-  getUserName: getUserName
+  getUserName: getUserName,
+  test:test
 };
