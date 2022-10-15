@@ -18,7 +18,6 @@ const io = require('socket.io')(http, {
 
 const client = require('./connection.js');
 const db = require('./queries');
-const { log } = require('console');
 app.use(cors());
 
 // eslint-disable-next-line import/extensions
@@ -37,8 +36,10 @@ app.use(express.static(__dirname));
 client.connect();
 
 app.get('/users', db.getUsers);
-app.post('/userName', db.getUserName);
-app.post('/addChannel', db.addChannel);
+app.get('/channels', db.getChannels);
+app.post('/channelByName', db.channelByName);
+app.post('/userRow', db.getUserRow);
+app.post('/addUserChannel', db.addUserChannel);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
@@ -48,28 +49,27 @@ app.post('/addUser', db.addUser);
 let users = [];
 
 io.on('connection', (socket) => {
-  // const statusBoolean = true
   socket.on('chat message', (msgInfo) => {
-    console.log(msgInfo);
     io.emit('chat message', msgInfo);
   });
+
+  socket.on('user registered', (isUserAdded) => {
+    io.emit('user registered', isUserAdded);
+  });
+
   socket.on("newUser", data => {
-    console.log('dataserver55', data);
     console.log('🔥: A user Online');
     users.push(data);
-    db.test(data, 'true'); 
-      // userRow.status = 'Online'
-    io.emit("newUserResponse", users);
+    db.updateUserState(data, 'true'); 
+    io.emit("newUserResponse", data.email);
   })
+
   socket.on('disconnect', () => {
     console.log('🔥: A user disconnected');
     const presentUser = users.find(user => user.socketID === socket.id);
-    db.test(presentUser, 'false');
-    console.log('usuario que se va', presentUser);
-    users = users.filter(user =>user.socketID !== socket.id);
-/*     const userIndex = users.indexOf(socket)
-    console.log(userIndex);  */   
-    io.emit("newUserResponse", users)
+    db.updateUserState(presentUser, 'false');
+    users = users.filter(user =>user.socketID !== socket.id);   
+    io.emit("newUserResponse", presentUser.email)
     socket.disconnect()
   });
 
@@ -98,16 +98,5 @@ function verifyToken(req, res, next){
   }
 }
 
-app.post("/createCanal", verifyToken, (req , res) => {
-
-  jwt.verify(req.token, 'secretkey', (error, authData) => {
-      if(error){
-          res.sendStatus(403);
-      }else{
-          res.json({
-                  mensaje: "Canal fue creado",
-                  authData
-              });
-      }
-  });
-});
+app.post('/addChannel', db.addChannel);
+app.post('/addChannel', verifyToken, db.addChannel);

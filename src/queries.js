@@ -1,5 +1,6 @@
-const client = require('./connection.js');
+/* eslint-disable prettier/prettier */
 const jwt = require('jsonwebtoken');
+const client = require('./connection.js');
 
 const getUsers = (request, response) => {
   client.query('SELECT * FROM users', (error, results) => {
@@ -26,45 +27,9 @@ function addUser(req, res) {
   );
 }
 
-/* addUser('Daniela', 'dan@kity.com', '123456', true);
-    addUser('Gaby', 'gaby@kity.com', '123456', true); */
-/* addUser('Pao', 'pao@kity.com', '123456', false); */
-
 function getUserState(status) {
   client
     .query(`SELECT * FROM users WHERE status=${status}`)
-    .then((response) => {
-      console.log(response.rows);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-}
-
-function getUserState(status) {
-  client
-    .query(`SELECT * FROM users WHERE status=${status}`)
-    .then((response) => {
-      console.log(response.rows);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-}
-
-/* const getUserState = (request, response) => {
-  client.query('SELECT * FROM users ORDER BY id ASC', (error, results) => {
-    if (error) {
-      throw error;
-    }
-    response.status(200).json(results.rows);
-  });
-}; */
-/* getUserState(true); */
-
-function updateUserState(id, status) {
-  client
-    .query(`UPDATE public.users SET status=${status} where id_user=${id}`)
     .then((response) => {
       console.log(response.rows);
     })
@@ -87,23 +52,22 @@ function deleteUser(id) {
 }
 /* deleteUser(3); */
 
-function getUserName(req, res) {
+function getUserRow(req, res) {
   const { email } = req.body;
   client.query(`SELECT * FROM users WHERE email=$1`,
   [email],(error, results) => {
       if (error) {
         return res.status(400).send({ message: error.detail });
       }
-/*       console.log(results); */
-      return res.status(200).send({ message: results.rows[0].user_name })
+      console.log(results.rows);
+      return res.status(200).send({ message: results.rows[0] })
     })
 }
 
-const test = async (userOnlineData, status) => {
-  console.log('test', userOnlineData);
-  console.log(status, typeof status);
+const updateUserState = async (userOnlineData, status) => {
+  console.log(`🎈`, userOnlineData);
   try {
-    const { email, password } = userOnlineData;
+    const { email} = userOnlineData;
     const result = await client.query(
       'UPDATE users SET status=$2 WHERE email=$1',
       [email, status]
@@ -137,18 +101,64 @@ const verifyUserLogged = async (userData, res) => {
   }
 };
 
+const getChannels = (request, response) => {
+  client.query('SELECT * FROM channels', (error, results) => {
+    if (error) {
+      throw error;
+    }
+    response.status(200).json(results.rows);
+  });
+};
+
+function channelByName(req, res) {
+  const { channelName } = req.body;
+  client.query(`SELECT * FROM channels WHERE name_channel=$1`,
+  [channelName],(error, results) => {
+      if (error) {
+        return res.status(400).send({ message: error.detail });
+      }
+      console.log(results.rows);
+      return res.status(200).send({ message: results.rows[0] })
+    })
+}
+
 function addChannel(req, res) {
-  const { nameChannel, description} = req.body;
+  const { nameChannel, description, uid, token} = req.body;
+  jwt.verify(token, 'secretkey', (error, authData) => {
+    if(error){
+        res.sendStatus(403);
+    } else{
+      client.query(
+        `INSERT INTO public.channels(name_channel, description, uid)
+          VALUES ($1, $2, $3);`,
+        [nameChannel, description, uid],
+        (err, results) => {
+          if (err) {
+            res.status(400).send({message: err.detail});
+            throw err;
+          }
+          res.status(200).send({
+            message: "Canal fue creado",
+            authData
+          });
+        }
+      );
+  }
+  });
+}
+
+function addUserChannel(req, res) {
+  const { uid, cid } = req.body;
   client.query(
-    `INSERT INTO public.channels(name_channel, description)
+    `INSERT INTO user_channels(cid, uid)
       VALUES ($1, $2);`,
-    [nameChannel, description],
+    [cid, uid],
     (error, results) => {
       if (error) {
         res.status(400).send({message: error.detail});
         throw error;
       }
-      res.status(201).send({message:`Channel added with ID: ${results}`});
+      res.status(200).send({message:`User added to channel ${results}`});
     }
   );
 }
@@ -162,7 +172,10 @@ module.exports = {
   updateUserState: updateUserState,
   deleteUser: deleteUser,
   verifyUserLogged: verifyUserLogged,
-  getUserName: getUserName,
-  test:test,
+  getUserRow: getUserRow,
+  updateUserState:updateUserState,
+  getChannels:getChannels,
+  channelByName:channelByName,
+  addUserChannel:addUserChannel,
   addChannel:addChannel
 };
