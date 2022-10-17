@@ -38,8 +38,6 @@ function getUserState(status) {
     });
 }
 
-/* updateUserState(3, true); */
-
 function deleteUser(id) {
   client
     .query(`DELETE FROM users WHERE id_user= ${id};`)
@@ -50,7 +48,6 @@ function deleteUser(id) {
       console.log(err);
     });
 }
-/* deleteUser(3); */
 
 function getUserRow(req, res) {
   const { email } = req.body;
@@ -59,7 +56,6 @@ function getUserRow(req, res) {
       if (error) {
         return res.status(400).send({ message: error.detail });
       }
-      console.log(results.rows);
       return res.status(200).send({ message: results.rows[0] })
     })
 }
@@ -117,7 +113,6 @@ function channelByName(req, res) {
       if (error) {
         return res.status(400).send({ message: error.detail });
       }
-      console.log(results.rows);
       return res.status(200).send({ message: results.rows[0] })
     })
 }
@@ -126,7 +121,7 @@ function addChannel(req, res) {
   const { nameChannel, description, uid, token} = req.body;
   jwt.verify(token, 'secretkey', (error, authData) => {
     if(error){
-        res.sendStatus(403);
+      res.sendStatus(403).send({message: error});
     } else{
       client.query(
         `INSERT INTO public.channels(name_channel, description, uid)
@@ -163,6 +158,22 @@ function addUserChannel(req, res) {
   );
 }
 
+function addUserToChannel(req, res) {
+  const { channelName, uid } = req.body;
+  client.query(
+    `INSERT INTO users_channels(cid, uid)
+      VALUES ($1, $2);`,
+    [channelName, uid],
+    (error, results) => {
+      if (error) {
+        res.status(400).send({message: error.detail});
+        throw error;
+      }
+      res.status(200).send({message:`User added to users_channels table`});
+    }
+  );
+}
+
 
 
 module.exports = {
@@ -177,5 +188,6 @@ module.exports = {
   getChannels:getChannels,
   channelByName:channelByName,
   addUserChannel:addUserChannel,
-  addChannel:addChannel
+  addChannel:addChannel,
+  addUserToChannel:addUserToChannel
 };
