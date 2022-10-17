@@ -39,7 +39,6 @@ app.get('/users', db.getUsers);
 app.get('/channels', db.getChannels);
 app.post('/channelByName', db.channelByName);
 app.post('/userRow', db.getUserRow);
-app.post('/addUserChannel', db.addUserChannel);
 app.post('/addUserToChannel', db.addUserToChannel);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -72,6 +71,11 @@ io.on('connection', (socket) => {
     users = users.filter(user =>user.socketID !== socket.id);   
     io.emit("newUserResponse", presentUser.email)
     socket.disconnect()
+  });
+
+  socket.on('joinChannel', (channel) => {
+    console.log(channel);
+    socket.join(channel);
   });
 
 });

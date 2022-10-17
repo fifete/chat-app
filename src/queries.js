@@ -142,28 +142,12 @@ function addChannel(req, res) {
   });
 }
 
-function addUserChannel(req, res) {
-  const { uid, cid } = req.body;
-  client.query(
-    `INSERT INTO public.channels(cid, uid)
-      VALUES ($1, $2);`,
-    [cid, uid],
-    (error, results) => {
-      if (error) {
-        res.status(400).send({message: error.detail});
-        throw error;
-      }
-      res.status(200).send({message:`User added to channel ${results}`});
-    }
-  );
-}
-
 function addUserToChannel(req, res) {
-  const { channelName, uid } = req.body;
+  const { cid, uid } = req.body;
   client.query(
     `INSERT INTO users_channels(cid, uid)
       VALUES ($1, $2);`,
-    [channelName, uid],
+    [cid, uid],
     (error, results) => {
       if (error) {
         res.status(400).send({message: error.detail});
@@ -173,7 +157,6 @@ function addUserToChannel(req, res) {
     }
   );
 }
-
 
 
 module.exports = {
@@ -187,7 +170,6 @@ module.exports = {
   updateUserState:updateUserState,
   getChannels:getChannels,
   channelByName:channelByName,
-  addUserChannel:addUserChannel,
   addChannel:addChannel,
   addUserToChannel:addUserToChannel
 };
