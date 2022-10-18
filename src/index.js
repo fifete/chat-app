@@ -50,7 +50,10 @@ let users = [];
 
 io.on('connection', (socket) => {
   socket.on('chat message', (msgInfo) => {
-    io.emit('chat message', msgInfo);
+    const { room } = msgInfo;
+    // io.emit('chat message', msgInfo);
+    io.to(room.name_channel).emit('chat message', msgInfo); // Send to all users in room, including sender
+    console.log(room, msgInfo);
   });
 
   socket.on('user registered', (isUserAdded) => {
@@ -58,15 +61,22 @@ io.on('connection', (socket) => {
   });
 
   socket.on("newUser", data => {
-    console.log('🔥: A user Online');
+    console.log('🟢: A user Online');
     users.push(data);
     db.updateUserState(data, 'true'); 
     io.emit("newUserResponse", data.email);
   })
 
+  socket.on("reconnect", data => {
+    console.log('🟡: user reconnect');
+    users.push(data);
+    db.updateUserState(data, 'true'); 
+    io.emit("socket.id", socket.id);
+  })
+
   socket.on('disconnect', () => {
-    console.log('🔥: A user disconnected');
     const presentUser = users.find(user => user.socketID === socket.id);
+    console.log('🔥: A user disconnected', presentUser, socket.id);
     db.updateUserState(presentUser, 'false');
     users = users.filter(user =>user.socketID !== socket.id);   
     io.emit("newUserResponse", presentUser.email)
@@ -75,9 +85,11 @@ io.on('connection', (socket) => {
 
   socket.on('joinChannel', (channel) => {
     console.log(channel);
-    socket.join(channel);
+    socket.join(channel.name_channel);
   });
 
+  // socket.on('send_message', (data) => {
+  //   io.to(room).emit('receive_message', data); // Send to all users in room, including sender
 });
 
 http.listen(port2, () => {
@@ -101,4 +113,4 @@ function verifyToken(req, res, next){
   }
 }
 // app.post('/addChannel', db.addChannel);
-app.post("/addChannel", verifyToken, db.addChannel);
+app.post("/addChannel", verifyToken, db.addChannel)
