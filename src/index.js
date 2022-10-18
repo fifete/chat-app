@@ -39,7 +39,7 @@ app.get('/users', db.getUsers);
 app.get('/channels', db.getChannels);
 app.post('/channelByName', db.channelByName);
 app.post('/userRow', db.getUserRow);
-app.post('/addUserChannel', db.addUserChannel);
+app.post('/addUserToChannel', db.addUserToChannel);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
@@ -58,23 +58,34 @@ io.on('connection', (socket) => {
   });
 
   socket.on("newUser", data => {
-    console.log('🔥: A user Online');
+    console.log('🟢: A user Online');
     users.push(data);
     db.updateUserState(data, 'true'); 
     io.emit("newUserResponse", data.email);
   })
 
+  socket.on("reconnect", data => {
+    console.log('🟡: user reconnect');
+    users.push(data);
+    db.updateUserState(data, 'true'); 
+    io.emit("socket.id", socket.id);
+  })
+
   socket.on('disconnect', () => {
-    console.log('🔥: A user disconnected');
     const presentUser = users.find(user => user.socketID === socket.id);
+    console.log('🔥: A user disconnected', presentUser, socket.id);
     db.updateUserState(presentUser, 'false');
     users = users.filter(user =>user.socketID !== socket.id);   
     io.emit("newUserResponse", presentUser.email)
     socket.disconnect()
   });
 
-});
+  socket.on('joinChannel', (channel) => {
+    console.log(channel);
+    socket.join(channel);
+  });
 
+});
 
 http.listen(port2, () => {
   console.log(`listening on: ${port2}`);
@@ -88,15 +99,13 @@ app.post("/login", (req , res) => {
 // Authorization: Bearer <token>
 function verifyToken(req, res, next){
   const bearerHeader =  req.headers.authorization;
-
   if(typeof bearerHeader !== 'undefined'){
        const bearerToken = bearerHeader.split(" ")[1];
        req.token  = bearerToken;
        next();
   }else{
-      res.sendStatus(403);
+      res.sendStatus(403).send();
   }
 }
-
-app.post('/addChannel', db.addChannel);
-app.post('/addChannel', verifyToken, db.addChannel);
+// app.post('/addChannel', db.addChannel);
+app.post("/addChannel", verifyToken, db.addChannel);
