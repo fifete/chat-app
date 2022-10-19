@@ -50,7 +50,13 @@ let users = [];
 
 io.on('connection', (socket) => {
   socket.on('chat message', (msgInfo) => {
-    io.emit('chat message', msgInfo);
+    const { room } = msgInfo;
+    io.to(room.name_channel).emit('chat message', msgInfo); // Send to all users in room, including sender
+    console.log(room, msgInfo);
+  });
+
+  socket.on('general room', (msgInfo) => {
+    io.emit('general room', msgInfo);
   });
 
   socket.on('user registered', (isUserAdded) => {
@@ -68,7 +74,7 @@ io.on('connection', (socket) => {
     console.log('🟡: user reconnect');
     users.push(data);
     db.updateUserState(data, 'true'); 
-    io.emit("socket.id", socket.id);
+    io.emit("newUserResponse", socket.id);
   })
 
   socket.on('disconnect', () => {
@@ -82,7 +88,7 @@ io.on('connection', (socket) => {
 
   socket.on('joinChannel', (channel) => {
     console.log(channel);
-    socket.join(channel);
+    socket.join(channel.name_channel);
   });
 
 });
