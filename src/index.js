@@ -47,13 +47,22 @@ app.get('/', (req, res) => {
 app.post('/addUser', db.addUser);
 
 let users = [];
-
+const channels = {}
+/* 
+{
+  1: [users]
+  cid2: [users del canal 2]
+}
+ */
 io.on('connection', (socket) => {
   socket.on('chat message', (msgInfo) => {
     const { room } = msgInfo;
-    // io.emit('chat message', msgInfo);
     io.to(room.name_channel).emit('chat message', msgInfo); // Send to all users in room, including sender
     console.log(room, msgInfo);
+  });
+
+  socket.on('general room', (msgInfo) => {
+    io.emit('general room', msgInfo);
   });
 
   socket.on('user registered', (isUserAdded) => {
@@ -71,7 +80,7 @@ io.on('connection', (socket) => {
     console.log('🟡: user reconnect');
     users.push(data);
     db.updateUserState(data, 'true'); 
-    io.emit("socket.id", socket.id);
+    io.emit("newUserResponse", socket.id);
   })
 
   socket.on('disconnect', () => {
@@ -81,15 +90,33 @@ io.on('connection', (socket) => {
     users = users.filter(user =>user.socketID !== socket.id);   
     io.emit("newUserResponse", presentUser.email)
     socket.disconnect()
+    // obj {}
   });
 
-  socket.on('joinChannel', (channel) => {
-    console.log(channel);
-    socket.join(channel.name_channel);
-  });
+  /* 
+{
+  1: [users]
+  cid2: [users del canal 2]
+}
+ */
+  socket.on('joinChannel', (userInChannelInfo) => {
+    const { channelInfo, user} = userInChannelInfo
+    console.log(channelInfo);
+    socket.join(channelInfo.name_channel);
+    const {cid} = channelInfo
 
-  // socket.on('send_message', (data) => {
-  //   io.to(room).emit('receive_message', data); // Send to all users in room, including sender
+    if(channels[cid]) {
+      // channels[cid] = new Set([...channels[cid]].concat(user))
+      channels[cid].forEach(channel => {
+        if(channel.email !== user.email){
+          channels[cid] = [...channels[cid]].concat(user)
+        }
+      })
+    } 
+    else channels[cid] = [].concat(user)
+    io.emit("usersInRoom", channels);
+    console.log('my', channels);
+  });
 });
 
 http.listen(port2, () => {
@@ -113,4 +140,4 @@ function verifyToken(req, res, next){
   }
 }
 // app.post('/addChannel', db.addChannel);
-app.post("/addChannel", verifyToken, db.addChannel)
+app.post("/addChannel", verifyToken, db.addChannel);
