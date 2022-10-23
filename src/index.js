@@ -40,6 +40,7 @@ app.get('/channels', db.getChannels);
 app.post('/channelByName', db.channelByName);
 app.post('/userRow', db.getUserRow);
 app.post('/addUserToChannel', db.addUserToChannel);
+app.post('/updateUserImg', db.updateUserImg);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
@@ -90,6 +91,14 @@ io.on('connection', (socket) => {
     console.log('🔥: A user disconnected', presentUser, socket.id);
     db.updateUserState(presentUser, 'false');
     users = users.filter(user =>user.socketID !== socket.id);   
+    io.emit("newUserResponse", presentUser.email)
+    socket.disconnect()
+  });
+
+  socket.on('logOut', () => {
+    const presentUser = users.find(user => user.socketID === socket.id);
+    console.log('🔥: A user disconnected', presentUser, socket.id);
+    db.updateUserState(presentUser, 'false');
     io.emit("newUserResponse", presentUser.email)
     socket.disconnect()
   });

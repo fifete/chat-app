@@ -76,6 +76,22 @@ const updateUserState = async (userOnlineData, status) => {
   }
 };
 
+const updateUserImg = async (req, res) => {
+  try {
+    const { email, avatarSrc } = req.body;
+    const result = await client.query(
+      'UPDATE users SET avatar=$2 WHERE email=$1',
+      [email, avatarSrc]
+    );
+    console.log(result)
+    if (result.rowCount) {
+      res.status(200).send({ message: 'Avatar changed' });
+    }
+  } catch (error) {
+    console.log(error.stack);
+  }
+};
+
 const verifyUserLogged = async (userData, res) => {
   try {
     const { email, password } = userData;
@@ -163,7 +179,7 @@ module.exports = {
   getUsers: getUsers,
   addUser: addUser,
   getUserState: getUserState,
-  updateUserState: updateUserState,
+  updateUserImg: updateUserImg,
   deleteUser: deleteUser,
   verifyUserLogged: verifyUserLogged,
   getUserRow: getUserRow,
