@@ -61,7 +61,6 @@ function getUserRow(req, res) {
 }
 
 const updateUserState = async (userOnlineData, status) => {
-  console.log(`🎈`, userOnlineData);
   try {
     const { email} = userOnlineData;
     const result = await client.query(
