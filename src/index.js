@@ -40,6 +40,9 @@ app.get('/channels', db.getChannels);
 app.post('/channelByName', db.channelByName);
 app.post('/userRow', db.getUserRow);
 app.post('/addUserToChannel', db.addUserToChannel);
+app.post('/updateUserImg', db.updateUserImg);
+app.post('/updateChannel', db.updateChannel);
+app.post('/deleteChannel', db.deleteChannel);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
@@ -89,14 +92,15 @@ io.on('connection', (socket) => {
     const presentUser = users.find(user => user.socketID === socket.id);
     console.log('🔥: A user disconnected', presentUser, socket.id);
     db.updateUserState(presentUser, 'false');
-/*     users = users.filter(user =>user.socketID !== socket.id);  */  
+    // users = users.filter(user =>user.socketID !== socket.id);   
     io.emit("newUserResponse", presentUser.email)
     socket.disconnect()
   });
 
   socket.on('logOut', () => {
+    console.log(users, 'logout')
     const presentUser = users.find(user => user.socketID === socket.id);
-    console.log('🔥: A user disconnected', presentUser, socket.id);
+    console.log('🔥: LogOut', presentUser, socket.id);
     db.updateUserState(presentUser, 'false');
     io.emit("newUserResponse", presentUser.email)
     socket.disconnect()
@@ -130,14 +134,14 @@ io.on('connection', (socket) => {
   ]
  */
   socket.on('joinChannel', (userInChannelInfo) => {
-    const { channelInfo, user} = userInChannelInfo
-    console.log(channelInfo);
+    const { channelInfo, userSession} = userInChannelInfo
     socket.join(channelInfo.name_channel);
     const {cid} = channelInfo
+    console.log(channels[cid], userSession);
     channels.current = cid
     if(channels[cid]) {
       console.log('prep', channels[cid]);
-      channels[cid] = [...channels[cid]].concat(user)
+      channels[cid] = [...channels[cid]].concat(userSession)
       channels[cid] = channels[cid].filter((channel, index, channelArr) =>
       index === channelArr.findIndex((c) => (
         c.email === channel.email
@@ -151,7 +155,7 @@ io.on('connection', (socket) => {
       // })
       console.log('post', channels[cid]);
     } 
-    else channels[cid] = [].concat(user)
+    else channels[cid] = [].concat(userSession)
     // socket.broadcast.to(channelInfo.name_channel).emit('joinChannel', channels[cid]);
     io.to(channelInfo.name_channel).emit('usersInRoom', {
       current: cid,
