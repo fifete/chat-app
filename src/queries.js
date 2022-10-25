@@ -103,6 +103,22 @@ const updateUserImg = async (req, res) => {
   }
 };
 
+const updateColor = async (req, res) => {
+  try {
+    const { email, avatarColor } = req.body;
+    const result = await client.query(
+      'UPDATE users SET color=$2 WHERE email=$1',
+      [email, avatarColor]
+    );
+    console.log(result)
+    if (result.rowCount) {
+      res.status(200).send({ message: 'Color changed' });
+    }
+  } catch (error) {
+    console.log(error.stack);
+  }
+};
+
 const updateChannel = async (req, res) => {
   try {
     const { cid, newNameChannel, newDescription } = req.body;
@@ -216,5 +232,6 @@ module.exports = {
   addChannel:addChannel,
   addUserToChannel:addUserToChannel,
   updateChannel: updateChannel,
-  deleteChannel: deleteChannel
+  deleteChannel: deleteChannel,
+  updateColor: updateColor
 };

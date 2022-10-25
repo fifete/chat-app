@@ -43,6 +43,7 @@ app.post('/addUserToChannel', db.addUserToChannel);
 app.post('/updateUserImg', db.updateUserImg);
 app.post('/updateChannel', db.updateChannel);
 app.post('/deleteChannel', db.deleteChannel);
+app.post('/updateColor', db.updateColor);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
