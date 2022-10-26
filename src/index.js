@@ -135,7 +135,7 @@ io.on('connection', (socket) => {
   ]
  */
   socket.on('joinChannel', (userInChannelInfo) => {
-    const { channelInfo, userSession} = userInChannelInfo
+    const { channelInfo, userSession, currentChannel } = userInChannelInfo
     socket.join(channelInfo.name_channel);
     const {cid} = channelInfo
     console.log(channels[cid], userSession);
@@ -158,20 +158,31 @@ io.on('connection', (socket) => {
     } 
     else channels[cid] = [].concat(userSession)
     // socket.broadcast.to(channelInfo.name_channel).emit('joinChannel', channels[cid]);
+    console.log('currentChannelllllll', currentChannel);
+    console.log('channelInfooooo', channelInfo);
+    console.log('channelssssss', channels);
+/*     const {cidCurrent} = currentChannel;
+    channels[cidCurrent] = channels[cidCurrent].filter(channel =>
+      channel.email !== userSession.email) */
     io.to(channelInfo.name_channel).emit('usersInRoom', {
       current: cid,
       [cid]: channels[cid]
     });
     // io.emit("usersInRoom", channels);
+
     console.log('my', channels);
   });
 
-  socket.on('leaveChannel', (userInChannelInfo) => {
-    const { currentChannel, userSession} = userInChannelInfo
+/*   socket.on('leaveChannel', (userInChannelInfo) => {
+    const { currentChannel, userSession} = userInChannelInfo */
 /*     socket.join(channelInfo.name_channel); */
-    console.log(currentChannel);
-    const {cid} = currentChannel
+/*     const {cid} = currentChannel;
     console.log('sali', currentChannel, userSession);
+    console.log('channelssssssss',channels) */
+/*     channels[cid] = channels[cid].filter(channel =>
+      channel.email !== userSession.email
+    ); */
+
    /*  channels.current = cid
     if(channels[cid]) {
       console.log('prep', channels[cid]);
@@ -188,7 +199,7 @@ io.on('connection', (socket) => {
       [cid]: channels[cid]
     });
     console.log('my', channels); */
-  }); 
+/*   });  */
 });
 
 http.listen(port2, () => {
