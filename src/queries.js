@@ -48,6 +48,17 @@ function deleteUser(id) {
       console.log(err);
     });
 }
+function deleteChannel(req, res) {
+  const { cid } = req.body;
+  console.log ('trato de eliminar', cid)
+  client.query('DELETE FROM channels WHERE cid= $1',
+  [cid],(error, results) => {
+    if (error) {
+      return res.status(400).send({ message: error.detail });
+    }
+    return res.status(200).send({ message: results.rows })
+  })
+}
 
 function getUserRow(req, res) {
   const { email } = req.body;
@@ -61,6 +72,7 @@ function getUserRow(req, res) {
 }
 
 const updateUserState = async (userOnlineData, status) => {
+  console.log(`🎈`, userOnlineData);
   try {
     const { email} = userOnlineData;
     const result = await client.query(
@@ -69,6 +81,54 @@ const updateUserState = async (userOnlineData, status) => {
     );
     if (result.rows.length === 0) {
       return 'user not found'
+    }
+  } catch (error) {
+    console.log(error.stack);
+  }
+};
+
+const updateUserImg = async (req, res) => {
+  try {
+    const { email, avatarSrc } = req.body;
+    const result = await client.query(
+      'UPDATE users SET avatar=$2 WHERE email=$1',
+      [email, avatarSrc]
+    );
+    console.log(result)
+    if (result.rowCount) {
+      res.status(200).send({ message: 'Avatar changed' });
+    }
+  } catch (error) {
+    console.log(error.stack);
+  }
+};
+
+const updateColor = async (req, res) => {
+  try {
+    const { email, avatarColor } = req.body;
+    const result = await client.query(
+      'UPDATE users SET color=$2 WHERE email=$1',
+      [email, avatarColor]
+    );
+    console.log(result)
+    if (result.rowCount) {
+      res.status(200).send({ message: 'Color changed' });
+    }
+  } catch (error) {
+    console.log(error.stack);
+  }
+};
+
+const updateChannel = async (req, res) => {
+  try {
+    const { cid, newNameChannel, newDescription } = req.body;
+    const result = await client.query(
+      'UPDATE channels SET name_channel=$2, description=$3 WHERE cid=$1',
+      [cid, newNameChannel, newDescription]
+    );
+    console.log(result)
+    if (result.rowCount) {
+      res.status(200).send({ message: 'Channel changed' });
     }
   } catch (error) {
     console.log(error.stack);
@@ -162,7 +222,7 @@ module.exports = {
   getUsers: getUsers,
   addUser: addUser,
   getUserState: getUserState,
-  updateUserState: updateUserState,
+  updateUserImg: updateUserImg,
   deleteUser: deleteUser,
   verifyUserLogged: verifyUserLogged,
   getUserRow: getUserRow,
@@ -170,5 +230,8 @@ module.exports = {
   getChannels:getChannels,
   channelByName:channelByName,
   addChannel:addChannel,
-  addUserToChannel:addUserToChannel
+  addUserToChannel:addUserToChannel,
+  updateChannel: updateChannel,
+  deleteChannel: deleteChannel,
+  updateColor: updateColor
 };
