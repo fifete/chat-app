@@ -41,6 +41,9 @@ app.post('/channelByName', db.channelByName);
 app.post('/userRow', db.getUserRow);
 app.post('/addUserToChannel', db.addUserToChannel);
 app.post('/updateUserImg', db.updateUserImg);
+app.post('/updateChannel', db.updateChannel);
+app.post('/deleteChannel', db.deleteChannel);
+app.post('/updateColor', db.updateColor);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
@@ -162,6 +165,30 @@ io.on('connection', (socket) => {
     // io.emit("usersInRoom", channels);
     console.log('my', channels);
   });
+
+  socket.on('leaveChannel', (userInChannelInfo) => {
+    const { currentChannel, userSession} = userInChannelInfo
+/*     socket.join(channelInfo.name_channel); */
+    console.log(currentChannel);
+    const {cid} = currentChannel
+    console.log('sali', currentChannel, userSession);
+   /*  channels.current = cid
+    if(channels[cid]) {
+      console.log('prep', channels[cid]);
+      channels[cid] = [...channels[cid]].concat(userSession)
+      channels[cid] = channels[cid].filter((channel, index, channelArr) =>
+      index === channelArr.findIndex((c) => (
+        c.email === channel.email
+      )));
+      console.log('post', channels[cid]);
+    } 
+    else channels[cid] = [].concat(userSession)
+    io.to(channelInfo.name_channel).emit('usersInRoom', {
+      current: cid,
+      [cid]: channels[cid]
+    });
+    console.log('my', channels); */
+  }); 
 });
 
 http.listen(port2, () => {
