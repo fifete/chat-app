@@ -54,12 +54,16 @@ let users = [];
 const channels = {
   current: '1'
 }
-/* 
-{
-  1: [users]
-  cid2: [users del canal 2]
+
+function filterUsersDisconnected(presentUser){
+  console.log('🎃🎊🎉');
+  console.log('f',channels[5]);
+  console.log('f',presentUser.email);
+  channels[5] = channels[5].filter(channel =>
+    channel.email !== presentUser.email
+  );
 }
- */
+
 io.on('connection', (socket) => {
   socket.on('chat message', (msgInfo) => {
     const { room } = msgInfo;
@@ -95,7 +99,9 @@ io.on('connection', (socket) => {
     db.updateUserState(presentUser, 'false');
     // users = users.filter(user =>user.socketID !== socket.id);   
     io.emit("newUserResponse", presentUser.email)
+    // filterUsersDisconnected(presentUser)
     socket.disconnect()
+    console.log('disconnect',channels);
   });
 
   socket.on('logOut', () => {
@@ -107,33 +113,6 @@ io.on('connection', (socket) => {
     socket.disconnect()
   });
 
-  /* 
-{
-  current: '1'
-  1: [users]
-  cid2: [users del canal 2]
-}
-'3': [
-    {
-      email: 'user1@gmail.com',
-      uid: 1,
-      user_name: 'user1',
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRGF0YSI6eyJlbWFpbCI6InVzZXIxQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoidXNlcjEifSwiaWF0IjoxNjY2Mjc2MDM3LCJleHAiOjE2NjYzNjI0Mzd9.g_kkn-_5n-WKFOV8_tZGjYw1tzi9bWyjHO3vGScHxYI'
-    },
-    {
-      email: 'user2@gmail.com',
-      uid: 2,
-      user_name: 'user2',
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRGF0YSI6eyJlbWFpbCI6InVzZXIyQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoidXNlcjIifSwiaWF0IjoxNjY2Mjc2NzQxLCJleHAiOjE2NjYzNjMxNDF9.lCN1HsAwJKpgPUJIwPtx0JV7UdKjW3L1DI6yRQ8vUmA'
-    },
-    {
-      email: 'user2@gmail.com',
-      uid: 2,
-      user_name: 'user2',
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRGF0YSI6eyJlbWFpbCI6InVzZXIyQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoidXNlcjIifSwiaWF0IjoxNjY2Mjc2NzQxLCJleHAiOjE2NjYzNjMxNDF9.lCN1HsAwJKpgPUJIwPtx0JV7UdKjW3L1DI6yRQ8vUmA'
-    }
-  ]
- */
   socket.on('joinChannel', (userInChannelInfo) => {
     const { channelInfo, userSession} = userInChannelInfo
     socket.join(channelInfo.name_channel);
@@ -163,31 +142,20 @@ io.on('connection', (socket) => {
       [cid]: channels[cid]
     });
     // io.emit("usersInRoom", channels);
-    console.log('my', channels);
+    console.log('channels befor', channels);
   });
 
   socket.on('leaveChannel', (userInChannelInfo) => {
     const { currentChannel, userSession} = userInChannelInfo
 /*     socket.join(channelInfo.name_channel); */
     console.log(currentChannel);
+    if(currentChannel.name_channel === 'Canal General') return
     const {cid} = currentChannel
-    console.log('sali', currentChannel, userSession);
-   /*  channels.current = cid
-    if(channels[cid]) {
-      console.log('prep', channels[cid]);
-      channels[cid] = [...channels[cid]].concat(userSession)
-      channels[cid] = channels[cid].filter((channel, index, channelArr) =>
-      index === channelArr.findIndex((c) => (
-        c.email === channel.email
-      )));
-      console.log('post', channels[cid]);
-    } 
-    else channels[cid] = [].concat(userSession)
-    io.to(channelInfo.name_channel).emit('usersInRoom', {
-      current: cid,
-      [cid]: channels[cid]
-    });
-    console.log('my', channels); */
+    console.log('sali', cid);
+    channels[cid] = channels[cid].filter(channel =>
+      channel.email !== userSession.email
+    );
+    console.log('channels after leave', channels);
   }); 
 });
 
