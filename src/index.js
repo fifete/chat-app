@@ -9,7 +9,7 @@ const http = require('http');
 
 const jwt = require('jsonwebtoken');
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 8000;
 /* const port2 = process.env.PORT || 3300; */
 
 const client = require('./connection.js');
