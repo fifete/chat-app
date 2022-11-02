@@ -10,20 +10,17 @@ const jwt = require('jsonwebtoken');
 
 const port = process.env.PORT || 3100;
 const port2 = process.env.PORT || 3300;
-const io = require('socket.io')(http, {
-  cors: {
-    origin: "http://localhost:3000"
-  },
-});
 
 const client = require('./connection.js');
 const db = require('./queries');
-app.use(cors());
+app.use(cors({origin:"*"}));
 
 // eslint-disable-next-line import/extensions
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+const io = require('socket.io')(server, {cors:{origin: "*"}});
 
 app.use(bodyParser.json());
 app.use(
@@ -149,9 +146,9 @@ io.on('connection', (socket) => {
   });
 });
 
-http.listen(port2, () => {
+/* http.listen(port2, () => {
   console.log(`listening on: ${port2}`);
-});
+}); */
 
 app.post("/login", (req, res) => {
   const infoUserLogin = req.body;
