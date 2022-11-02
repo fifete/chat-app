@@ -13,3 +13,12 @@ const client = new Client({
 });
 
 module.exports = client;
+
+// const client = new Client({
+//   host: process.env.HOST || 'localhost',
+//   user: 'postgres',
+//   port: 5432,
+//   password: 'postgres',
+//   database: 'postgres',
+// });
+// module.exports = client;
