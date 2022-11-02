@@ -146,9 +146,9 @@ io.on('connection', (socket) => {
   });
 });
 
-/* http.listen(port2, () => {
-  console.log(`listening on: ${port2}`);
-}); */
+http.listen(port, () => {
+  console.log(`listening on: ${port}`);
+});
 
 app.post("/login", (req, res) => {
   const infoUserLogin = req.body;
