@@ -55,10 +55,10 @@ const channels = {
   current: '1'
 }
 
-function filterUsersDisconnected(presentUser){
+function filterUsersDisconnected(presentUser) {
   console.log('🎃🎊🎉');
-  console.log('f',channels[5]);
-  console.log('f',presentUser.email);
+  console.log('f', channels[5]);
+  console.log('f', presentUser.email);
   channels[5] = channels[5].filter(channel =>
     channel.email !== presentUser.email
   );
@@ -82,14 +82,14 @@ io.on('connection', (socket) => {
   socket.on("newUser", data => {
     console.log('🟢: A user Online');
     users.push(data);
-    db.updateUserState(data, 'true'); 
+    db.updateUserState(data, 'true');
     io.emit("newUserResponse", data.email);
   })
 
   socket.on("reconnect", data => {
     console.log('🟡: user reconnect');
     users.push(data);
-    db.updateUserState(data, 'true'); 
+    db.updateUserState(data, 'true');
     io.emit("newUserResponse", socket.id);
   })
 
@@ -101,7 +101,7 @@ io.on('connection', (socket) => {
     io.emit("newUserResponse", presentUser.email)
     // filterUsersDisconnected(presentUser)
     socket.disconnect()
-    console.log('disconnect',channels);
+    console.log('disconnect', channels);
   });
 
   socket.on('logOut', () => {
@@ -114,69 +114,59 @@ io.on('connection', (socket) => {
   });
 
   socket.on('joinChannel', (userInChannelInfo) => {
-    const { channelInfo, userSession} = userInChannelInfo
+    const { channelInfo, userSession } = userInChannelInfo
     socket.join(channelInfo.name_channel);
-    const {cid} = channelInfo
+    const { cid } = channelInfo
     console.log(channels[cid], userSession);
     channels.current = cid
-    if(channels[cid]) {
+    if (channels[cid]) {
       console.log('prep', channels[cid]);
       channels[cid] = [...channels[cid]].concat(userSession)
       channels[cid] = channels[cid].filter((channel, index, channelArr) =>
-      index === channelArr.findIndex((c) => (
-        c.email === channel.email
-      )));
-      // channels[cid].forEach(channel => {
-      //   console.log('prep', channel.email, user.email);
-      //   if(channel.email !== user.email){
-      //     console.log('post', channels[cid]);
-
-      //   }
-      // })
+        index === channelArr.findIndex((c) => (
+          c.email === channel.email
+        )));
       console.log('post', channels[cid]);
-    } 
+    }
     else channels[cid] = [].concat(userSession)
     // socket.broadcast.to(channelInfo.name_channel).emit('joinChannel', channels[cid]);
     io.to(channelInfo.name_channel).emit('usersInRoom', {
       current: cid,
       [cid]: channels[cid]
     });
-    // io.emit("usersInRoom", channels);
     console.log('channels befor', channels);
   });
-
   socket.on('leaveChannel', (userInChannelInfo) => {
-    const { currentChannel, userSession} = userInChannelInfo
-/*     socket.join(channelInfo.name_channel); */
+    const { currentChannel, userSession } = userInChannelInfo
     console.log(currentChannel);
-    if(currentChannel.name_channel === 'Canal General') return
-    const {cid} = currentChannel
+    if (currentChannel.name_channel === 'Canal General') return
+    const { cid } = currentChannel
     console.log('sali', cid);
     channels[cid] = channels[cid].filter(channel =>
       channel.email === userSession.email
     );
     console.log('channels after leave', channels);
-  }); 
+  });
 });
 
 http.listen(port2, () => {
   console.log(`listening on: ${port2}`);
 });
 
-app.post("/login", (req , res) => {
+app.post("/login", (req, res) => {
   const infoUserLogin = req.body;
   db.verifyUserLogged(infoUserLogin, res)
 });
 
 // Authorization: Bearer <token>
-function verifyToken(req, res, next){
-  const bearerHeader =  req.headers.authorization;
-  if(typeof bearerHeader !== 'undefined'){
-       const bearerToken = bearerHeader.split(" ")[1];
-       req.token  = bearerToken;
-       next();
-  }else{
-      res.sendStatus(403).send();
+function verifyToken(req, res, next) {
+  const bearerHeader = req.headers.authorization;
+  if (typeof bearerHeader !== 'undefined') {
+    const bearerToken = bearerHeader.split(" ")[1];
+    req.token = bearerToken;
+    next();
+  } else {
+    res.sendStatus(403).send();
   }
 }
 app.post("/addChannel", verifyToken, db.addChannel);
