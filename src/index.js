@@ -153,7 +153,7 @@ io.on('connection', (socket) => {
     const {cid} = currentChannel
     console.log('sali', cid);
     channels[cid] = channels[cid].filter(channel =>
-      channel.email !== userSession.email
+      channel.email === userSession.email
     );
     console.log('channels after leave', channels);
   }); 
