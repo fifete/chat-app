@@ -4,23 +4,34 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const http = require('http').Server(app);
+/* const http = require('http').Server(app); */
+const http = require('http');
 
 const jwt = require('jsonwebtoken');
 
 const port = process.env.PORT || 3100;
-const port2 = process.env.PORT || 3300;
+/* const port2 = process.env.PORT || 3300; */
 
 const client = require('./connection.js');
 const db = require('./queries');
-app.use(cors({origin:"*"}));
+/* app.use(cors({origin:"*"})); */
+
+app.use(
+  cors({
+    credentials: true,
+    origin: true,
+  })
+);
 
 // eslint-disable-next-line import/extensions
-const server = app.listen(port, () => {
+/* const server = app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
-});
+}); */
+
+const server = http.createServer(app);
 
 const io = require('socket.io')(server, {cors:{origin: "*"}});
+
 
 app.use(bodyParser.json());
 app.use(
@@ -146,9 +157,10 @@ io.on('connection', (socket) => {
   });
 });
 
-http.listen(port, () => {
+/* http.listen(port, () => {
   console.log(`listening on: ${port}`);
-});
+}); */
+server.listen(port);
 
 app.post("/login", (req, res) => {
   const infoUserLogin = req.body;
